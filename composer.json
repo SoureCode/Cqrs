@@ -1,0 +1,29 @@
+{
+    "name": "sourecode/cqrs",
+    "type": "library",
+    "description": "Cqrs interfaces and classes",
+    "keywords": [
+        "cqrs",
+        "messenger"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jason Schilling",
+            "email": "jason@sourecode.dev"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "symfony/messenger": "^5.3 || ^6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "SoureCode\\Component\\Cqrs\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "minimum-stability": "dev"
+}
