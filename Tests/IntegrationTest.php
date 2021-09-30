@@ -24,6 +24,7 @@ use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
 use Symfony\Component\Messenger\Handler\HandlersLocator;
 use Symfony\Component\Messenger\MessageBus;
 use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
+use Symfony\Component\Uid\Ulid;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
@@ -58,18 +59,20 @@ class IntegrationTest extends TestCase
         ]);
 
         $queryBus = new QueryBus($queryMessageBus);
+        $id = new Ulid();
 
         // Act
-        $id = $commandBus->dispatch(new RegisterUserCommand('Jason'));
+        $commandBus->dispatch(new RegisterUserCommand($id, 'Jason'));
         $user = $queryBus->handle(new GetUserQuery($id));
 
         // Assert
         self::assertSame($user->getName(), 'Jason');
-        self::assertSame($user->getId(), 0);
-        self::assertTrue($store->has(0), 'Store contains the user');
-        self::assertTrue($store->has(1), 'Store contains the email');
+        self::assertSame($user->getId()->toRfc4122(), $id->toRfc4122());
+        $all = $store->getAll();
+        self::assertCount(2, $all);
 
-        $email = $store->get(1);
-        self::assertSame($email->getContent(), 'Hello Jason!');
+        $last = array_pop($all);
+
+        self::assertSame($last->getContent(), 'Hello Jason!');
     }
 }
