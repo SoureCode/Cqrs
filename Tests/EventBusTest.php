@@ -63,7 +63,6 @@ class EventBusTest extends TestCase
          */
         $email = array_pop($all);
 
-        self::assertSame($email->getContent(), "Hello lorem!");
+        self::assertSame($email->getContent(), 'Hello lorem!');
     }
-
 }

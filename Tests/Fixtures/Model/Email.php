@@ -17,7 +17,6 @@ use Symfony\Component\Uid\Ulid;
  */
 class Email
 {
-
     private string $content;
     private ?Ulid $id = null;
 
@@ -45,5 +44,4 @@ class Email
     {
         $this->id = $id;
     }
-
 }

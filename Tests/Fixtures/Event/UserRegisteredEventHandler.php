@@ -21,7 +21,6 @@ use Symfony\Component\Uid\Ulid;
  */
 class UserRegisteredEventHandler implements EventHandlerInterface
 {
-
     public Store $store;
 
     public function __construct(Store $store)
@@ -44,5 +43,4 @@ class UserRegisteredEventHandler implements EventHandlerInterface
 
         $this->store->persist($email);
     }
-
 }

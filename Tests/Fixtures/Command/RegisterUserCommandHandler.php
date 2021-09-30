@@ -23,7 +23,6 @@ use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
  */
 class RegisterUserCommandHandler implements CommandHandlerInterface
 {
-
     private EventBusInterface $eventBus;
     private Store $store;
 

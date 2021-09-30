@@ -26,7 +26,6 @@ use Symfony\Component\Uid\Ulid;
  */
 class CommandBusTest extends TestCase
 {
-
     public function testDispatch(): void
     {
         // Arrange
@@ -60,5 +59,4 @@ class CommandBusTest extends TestCase
         // Assert
         self::assertSame($store->get($id)->getName(), 'foo');
     }
-
 }

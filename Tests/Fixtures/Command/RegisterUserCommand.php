@@ -18,7 +18,6 @@ use Symfony\Component\Uid\Ulid;
  */
 class RegisterUserCommand implements CommandInterface
 {
-
     private Ulid $id;
     private string $name;
 
@@ -37,5 +36,4 @@ class RegisterUserCommand implements CommandInterface
     {
         return $this->name;
     }
-
 }

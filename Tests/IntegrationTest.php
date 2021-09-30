@@ -18,7 +18,6 @@ use SoureCode\Component\Cqrs\Tests\Fixtures\Command\RegisterUserCommand;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Command\RegisterUserCommandHandler;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Event\UserRegisteredEvent;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Event\UserRegisteredEventHandler;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Model\User;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Query\GetUserQuery;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Query\GetUserQueryHandler;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
@@ -39,7 +38,7 @@ class IntegrationTest extends TestCase
         $eventMessageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
                 UserRegisteredEvent::class => [new UserRegisteredEventHandler($store)],
-            ]))
+            ])),
         ]);
 
         $eventBus = new EventBus($eventMessageBus);
@@ -47,7 +46,7 @@ class IntegrationTest extends TestCase
         $commandMessageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
                 RegisterUserCommand::class => [new RegisterUserCommandHandler($store, $eventBus)],
-            ]))
+            ])),
         ]);
 
         $commandBus = new CommandBus($commandMessageBus);
@@ -55,7 +54,7 @@ class IntegrationTest extends TestCase
         $queryMessageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
                 GetUserQuery::class => [new GetUserQueryHandler($store)],
-            ]))
+            ])),
         ]);
 
         $queryBus = new QueryBus($queryMessageBus);
@@ -73,5 +72,4 @@ class IntegrationTest extends TestCase
         $email = $store->get(1);
         self::assertSame($email->getContent(), 'Hello Jason!');
     }
-
 }

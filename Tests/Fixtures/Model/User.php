@@ -17,7 +17,6 @@ use Symfony\Component\Uid\Ulid;
  */
 class User
 {
-
     private ?Ulid $id = null;
 
     private ?string $name = null;
@@ -41,5 +40,4 @@ class User
     {
         $this->name = $name;
     }
-
 }

@@ -44,7 +44,7 @@ class QueryBusTest extends TestCase
         $messageBus = new MessageBus([
             new HandleMessageMiddleware(new HandlersLocator([
                 GetUserQuery::class => [$queryHandler],
-            ]))
+            ])),
         ]);
         $queryBus = new QueryBus($messageBus);
 
@@ -54,5 +54,4 @@ class QueryBusTest extends TestCase
         // Assert
         self::assertSame($actual, $user);
     }
-
 }

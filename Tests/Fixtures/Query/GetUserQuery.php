@@ -18,7 +18,6 @@ use Symfony\Component\Uid\Ulid;
  */
 class GetUserQuery implements QueryInterface
 {
-
     private Ulid $id;
 
     public function __construct(Ulid $id)
@@ -30,5 +29,4 @@ class GetUserQuery implements QueryInterface
     {
         return $this->id;
     }
-
 }

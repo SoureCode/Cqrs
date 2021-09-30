@@ -17,13 +17,12 @@ use Symfony\Component\Uid\Ulid;
  */
 class Store
 {
-
     private array $items = [];
 
     public function get(Ulid $id): mixed
     {
         if (!$this->has($id)) {
-            throw new \Exception(sprintf("Item with id \"%d\" not found", $id));
+            throw new \Exception(sprintf('Item with id "%d" not found', $id));
         }
 
         return $this->items[$id->toRfc4122()];
@@ -31,7 +30,7 @@ class Store
 
     public function has(Ulid $id): bool
     {
-        return array_key_exists($id->toRfc4122(), $this->items);
+        return \array_key_exists($id->toRfc4122(), $this->items);
     }
 
     public function getAll(): array
@@ -42,7 +41,7 @@ class Store
     public function persist(object $item): void
     {
         if (!method_exists($item, 'getId')) {
-            throw new \Exception("Missing getId method.");
+            throw new \Exception('Missing getId method.');
         }
 
         $id = $item->getId();
@@ -52,16 +51,15 @@ class Store
     public function update(object $item): void
     {
         if (!method_exists($item, 'getId')) {
-            throw new \Exception("Missing getId method.");
+            throw new \Exception('Missing getId method.');
         }
 
         $id = $item->getId();
 
         if (!$this->has($id)) {
-            throw new \Exception(sprintf("Item with id \"%d\" not found", $id));
+            throw new \Exception(sprintf('Item with id "%d" not found', $id));
         }
 
         $this->items[$id->toRfc4122()] = $item;
     }
-
 }
