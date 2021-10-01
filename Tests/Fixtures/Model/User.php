@@ -21,7 +21,7 @@ class User
 
     private ?string $name = null;
 
-    public function setId(?Ulid $id): void
+    public function __construct(?Ulid $id)
     {
         $this->id = $id;
     }

@@ -10,53 +10,38 @@
 
 namespace SoureCode\Component\Cqrs\Tests;
 
-use PHPUnit\Framework\TestCase;
 use SoureCode\Component\Cqrs\CommandBus;
 use SoureCode\Component\Cqrs\EventBus;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Command\RegisterUserCommand;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Command\RegisterUserCommandHandler;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
-use Symfony\Component\Messenger\Handler\HandlersLocator;
-use Symfony\Component\Messenger\MessageBus;
-use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Uid\Ulid;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
-class CommandBusTest extends TestCase
+class CommandBusTest extends AbstractCqrsTestCase
 {
     public function testDispatch(): void
     {
         // Arrange
-        $store = new Store();
-
-        $eventMessageBus = new MessageBus([
-            new HandleMessageMiddleware(
-                new HandlersLocator([
-                ]), true
-            ),
+        $collection = $this->createCollection();
+        $eventMessageBus = $this->createMessageBus([], true);
+        $commandMessageBus = $this->createMessageBus([
+            RegisterUserCommand::class => [new RegisterUserCommandHandler($collection)],
         ]);
 
         $eventBus = new EventBus($eventMessageBus);
-
-        $messageBus = new MessageBus([
-            new HandleMessageMiddleware(
-                new HandlersLocator([
-                    RegisterUserCommand::class => [new RegisterUserCommandHandler($store, $eventBus)],
-                ])
-            ),
-        ]);
-
-        $commandBus = new CommandBus($messageBus);
+        $commandBus = new CommandBus($commandMessageBus, $eventBus);
 
         $id = new Ulid();
-        $command = new RegisterUserCommand($id, 'foo');
 
         // Act
-        $commandBus->dispatch($command);
+        $commandBus->dispatch(new RegisterUserCommand($id, 'foo'));
 
         // Assert
-        self::assertSame($store->get($id)->getName(), 'foo');
+        self::assertSame($collection->get($id->toRfc4122())->getName(), 'foo');
+
+        self::assertCount(1, $commandMessageBus->getDispatchedMessages());
+        self::assertCount(1, $eventMessageBus->getDispatchedMessages());
     }
 }

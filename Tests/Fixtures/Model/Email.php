@@ -10,15 +10,12 @@
 
 namespace SoureCode\Component\Cqrs\Tests\Fixtures\Model;
 
-use Symfony\Component\Uid\Ulid;
-
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 class Email
 {
     private string $content;
-    private ?Ulid $id = null;
 
     public function __construct(string $content)
     {
@@ -33,15 +30,5 @@ class Email
     public function setContent(string $content): void
     {
         $this->content = $content;
-    }
-
-    public function getId(): ?Ulid
-    {
-        return $this->id;
-    }
-
-    public function setId(?Ulid $id): void
-    {
-        $this->id = $id;
     }
 }

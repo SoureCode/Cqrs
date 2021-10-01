@@ -10,40 +10,33 @@
 
 namespace SoureCode\Component\Cqrs\Tests\Fixtures\Command;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use SoureCode\Component\Cqrs\CommandHandlerInterface;
-use SoureCode\Component\Cqrs\EventBusInterface;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Event\UserRegisteredEvent;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Model\User;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
-use Symfony\Component\Messenger\Envelope;
-use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 class RegisterUserCommandHandler implements CommandHandlerInterface
 {
-    private EventBusInterface $eventBus;
-    private Store $store;
+    private ArrayCollection $collection;
 
-    public function __construct(Store $store, EventBusInterface $eventBus)
+    public function __construct(ArrayCollection $collection)
     {
-        $this->store = $store;
-        $this->eventBus = $eventBus;
+        $this->collection = $collection;
     }
 
-    public function __invoke(RegisterUserCommand $command): void
+    public function __invoke(RegisterUserCommand $command)
     {
         $id = $command->getId();
 
-        $user = new User();
-        $user->setId($id);
+        $user = new User($id);
+
         $user->setName($command->getName());
 
-        $this->store->persist($user);
+        $this->collection->set($id->toRfc4122(), $user);
 
-        $event = new UserRegisteredEvent($id);
-        $eventEnvelope = (new Envelope($event))->with(new DispatchAfterCurrentBusStamp());
-        $this->eventBus->dispatch($eventEnvelope);
+        return yield new UserRegisteredEvent($id);
     }
 }

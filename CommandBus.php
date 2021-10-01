@@ -10,23 +10,41 @@
 
 namespace SoureCode\Component\Cqrs;
 
+use Generator;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 class CommandBus implements CommandBusInterface
 {
-    private MessageBusInterface $messageBus;
+    use HandleTrait {
+        handle as handleCommand;
+    }
 
-    public function __construct(MessageBusInterface $messageBus)
+    private EventBusInterface $eventBus;
+
+    public function __construct(MessageBusInterface $messageBus, EventBusInterface $eventBus)
     {
         $this->messageBus = $messageBus;
+        $this->eventBus = $eventBus;
     }
 
     public function dispatch(CommandInterface|Envelope $command): void
     {
-        $this->messageBus->dispatch($command);
+        $events = $this->handleCommand($command);
+
+        if ($events instanceof Generator) {
+            foreach ($events as $event) {
+                if ($event instanceof EventInterface) {
+                    $envelope = Envelope::wrap($event, [new DispatchAfterCurrentBusStamp()]);
+
+                    $this->eventBus->dispatch($envelope);
+                }
+            }
+        }
     }
 }

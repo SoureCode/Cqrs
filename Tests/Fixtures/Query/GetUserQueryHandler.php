@@ -10,25 +10,25 @@
 
 namespace SoureCode\Component\Cqrs\Tests\Fixtures\Query;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use SoureCode\Component\Cqrs\QueryHandlerInterface;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 class GetUserQueryHandler implements QueryHandlerInterface
 {
-    private Store $store;
+    private ArrayCollection $collection;
 
-    public function __construct(Store $store)
+    public function __construct(ArrayCollection $collection)
     {
-        $this->store = $store;
+        $this->collection = $collection;
     }
 
     public function __invoke(GetUserQuery $query)
     {
         $id = $query->getId();
 
-        return $this->store->get($id);
+        return $this->collection->get($id->toRfc4122());
     }
 }

@@ -10,59 +10,41 @@
 
 namespace SoureCode\Component\Cqrs\Tests;
 
-use PHPUnit\Framework\TestCase;
 use SoureCode\Component\Cqrs\EventBus;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Event\UserRegisteredEvent;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Event\UserRegisteredEventHandler;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Model\Email;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Model\User;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
-use Symfony\Component\Messenger\Handler\HandlersLocator;
-use Symfony\Component\Messenger\MessageBus;
-use Symfony\Component\Messenger\Middleware\HandleMessageMiddleware;
 use Symfony\Component\Uid\Ulid;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
-class EventBusTest extends TestCase
+class EventBusTest extends AbstractCqrsTestCase
 {
     public function testDispatch(): void
     {
         // Arrange
-        $store = new Store();
         $id = new Ulid();
+        $user = $this->createUser($id, 'lorem');
+        $collection = $this->createCollection($user);
 
-        $user = new User();
-        $user->setId($id);
-        $user->setName('lorem');
-
-        $store->persist($user);
-
-        $eventHandler = new UserRegisteredEventHandler($store);
-        $event = new UserRegisteredEvent($id);
-
-        $messageBus = new MessageBus([
-            new HandleMessageMiddleware(
-                new HandlersLocator([
-                    UserRegisteredEvent::class => [$eventHandler],
-                ])
-            ),
+        $messageBus = $this->createMessageBus([
+            UserRegisteredEvent::class => [new UserRegisteredEventHandler($collection)],
         ]);
+
         $eventBus = new EventBus($messageBus);
 
         // Act
-        $eventBus->dispatch($event);
+        $eventBus->dispatch(new UserRegisteredEvent($id));
 
         // Assert
-        self::assertTrue($store->has($id));
-
-        $all = $store->getAll();
         /**
          * @var Email $email
          */
-        $email = array_pop($all);
+        $email = $collection->last();
 
+        self::assertTrue($collection->containsKey($id->toRfc4122()));
         self::assertSame($email->getContent(), 'Hello lorem!');
+        self::assertCount(1, $messageBus->getDispatchedMessages());
     }
 }

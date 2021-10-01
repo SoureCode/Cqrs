@@ -10,22 +10,21 @@
 
 namespace SoureCode\Component\Cqrs\Tests\Fixtures\Event;
 
+use Doctrine\Common\Collections\ArrayCollection;
 use SoureCode\Component\Cqrs\EventHandlerInterface;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Model\Email;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Model\User;
-use SoureCode\Component\Cqrs\Tests\Fixtures\Store;
-use Symfony\Component\Uid\Ulid;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 class UserRegisteredEventHandler implements EventHandlerInterface
 {
-    public Store $store;
+    private ArrayCollection $collection;
 
-    public function __construct(Store $store)
+    public function __construct(ArrayCollection $collection)
     {
-        $this->store = $store;
+        $this->collection = $collection;
     }
 
     public function __invoke(UserRegisteredEvent $event)
@@ -35,12 +34,11 @@ class UserRegisteredEventHandler implements EventHandlerInterface
         /**
          * @var User $user
          */
-        $user = $this->store->get($id);
+        $user = $this->collection->get($id->toRfc4122());
 
-        // Actually you would send an email here, but to track the state we just create an email.
+        // Actually you would send an email here, but to track the state we just create a custom email model.
         $email = new Email('Hello '.$user->getName().'!');
-        $email->setId(new Ulid());
 
-        $this->store->persist($email);
+        $this->collection->add($email);
     }
 }
