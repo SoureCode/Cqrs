@@ -27,10 +27,10 @@ class CommandBus implements CommandBusInterface
 
     private EventBusInterface $eventBus;
 
-    public function __construct(MessageBusInterface $messageBus, EventBusInterface $eventBus)
+    public function __construct(EventBusInterface $eventBus, MessageBusInterface $messageBus)
     {
-        $this->messageBus = $messageBus;
         $this->eventBus = $eventBus;
+        $this->messageBus = $messageBus;
     }
 
     public function dispatch(CommandInterface|Envelope $command): void
