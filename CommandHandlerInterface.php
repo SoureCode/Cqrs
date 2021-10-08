@@ -10,9 +10,11 @@
 
 namespace SoureCode\Component\Cqrs;
 
+use Symfony\Component\Messenger\Handler\MessageHandlerInterface;
+
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
-interface CommandHandlerInterface
+interface CommandHandlerInterface extends MessageHandlerInterface
 {
 }
