@@ -10,12 +10,15 @@
 
 namespace SoureCode\Component\Cqrs;
 
-use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 interface QueryBusInterface
 {
-    public function handle(QueryInterface|Envelope $query): mixed;
+    /**
+     * @param StampInterface[] $stamps
+     */
+    public function handle(QueryInterface $query, array $stamps = []): mixed;
 }

@@ -12,9 +12,11 @@ namespace SoureCode\Component\Cqrs;
 
 use Generator;
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
+use Throwable;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
@@ -22,28 +24,52 @@ use Symfony\Component\Messenger\Stamp\DispatchAfterCurrentBusStamp;
 class CommandBus implements CommandBusInterface
 {
     use HandleTrait {
-        handle as handleCommand;
+        handle as private handleCommand;
     }
 
     private EventBusInterface $eventBus;
 
-    public function __construct(EventBusInterface $eventBus, MessageBusInterface $messageBus)
+    public function __construct(MessageBusInterface $messageBus, EventBusInterface $eventBus)
     {
-        $this->eventBus = $eventBus;
         $this->messageBus = $messageBus;
+        $this->eventBus = $eventBus;
     }
 
-    public function dispatch(CommandInterface|Envelope $command): void
+    /**
+     * {@inheritDoc}
+     */
+    public function dispatch(CommandInterface $command, array $stamps = []): void
     {
-        $events = $this->handleCommand($command);
+        try {
+            $envelope = Envelope::wrap($command, $stamps);
+
+            $events = $this->handleCommand($envelope);
+        } catch (HandlerFailedException $exception) {
+            while ($exception instanceof HandlerFailedException) {
+                /**
+                 * @var Throwable $exception
+                 */
+                $exception = $exception->getPrevious();
+            }
+
+            throw $exception;
+        }
 
         if ($events instanceof Generator) {
-            foreach ($events as $event) {
-                if ($event instanceof EventInterface) {
-                    $envelope = Envelope::wrap($event, [new DispatchAfterCurrentBusStamp()]);
+            $this->dispatchEvents($events);
+        }
+    }
 
-                    $this->eventBus->dispatch($envelope);
-                }
+    /**
+     * @param Generator<mixed> $events
+     */
+    protected function dispatchEvents(Generator $events): void
+    {
+        foreach ($events as $event) {
+            if ($event instanceof EventInterface) {
+                $this->eventBus->dispatch($event, [
+                    new DispatchAfterCurrentBusStamp(),
+                ]);
             }
         }
     }

@@ -11,6 +11,8 @@
 namespace SoureCode\Component\Cqrs\Tests;
 
 use SoureCode\Component\Cqrs\QueryBus;
+use SoureCode\Component\Cqrs\Tests\Fixtures\Query\FooQuery;
+use SoureCode\Component\Cqrs\Tests\Fixtures\Query\FooQueryHandler;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Query\GetUserQuery;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Query\GetUserQueryHandler;
 use Symfony\Component\Uid\Ulid;
@@ -20,6 +22,22 @@ use Symfony\Component\Uid\Ulid;
  */
 class QueryBusTest extends AbstractCqrsTestCase
 {
+    public function testExceptionHandling(): void
+    {
+        // Assert
+        $this->expectExceptionMessage('Something went wrong.');
+
+        // Arrange
+        $messageBus = $this->createMessageBus([
+            FooQuery::class => [new FooQueryHandler()],
+        ]);
+
+        $queryBus = new QueryBus($messageBus);
+
+        // Act
+        $queryBus->handle(new FooQuery('bar'));
+    }
+
     public function testHandle(): void
     {
         // Arrange

@@ -10,12 +10,15 @@
 
 namespace SoureCode\Component\Cqrs;
 
-use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Stamp\StampInterface;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
  */
 interface CommandBusInterface
 {
-    public function dispatch(CommandInterface|Envelope $command): void;
+    /**
+     * @param StampInterface[] $stamps
+     */
+    public function dispatch(CommandInterface $command, array $stamps = []): void;
 }

@@ -12,6 +12,8 @@ namespace SoureCode\Component\Cqrs\Tests;
 
 use SoureCode\Component\Cqrs\CommandBus;
 use SoureCode\Component\Cqrs\EventBus;
+use SoureCode\Component\Cqrs\Tests\Fixtures\Command\FooCommand;
+use SoureCode\Component\Cqrs\Tests\Fixtures\Command\FooCommandHandler;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Command\RegisterUserCommand;
 use SoureCode\Component\Cqrs\Tests\Fixtures\Command\RegisterUserCommandHandler;
 use Symfony\Component\Uid\Ulid;
@@ -43,5 +45,23 @@ class CommandBusTest extends AbstractCqrsTestCase
 
         self::assertCount(1, $commandMessageBus->getDispatchedMessages());
         self::assertCount(1, $eventMessageBus->getDispatchedMessages());
+    }
+
+    public function testExceptionHandling()
+    {
+        // Assert
+        $this->expectExceptionMessage('Something went wrong.');
+
+        // Arrange
+        $eventMessageBus = $this->createMessageBus([], true);
+        $commandMessageBus = $this->createMessageBus([
+            FooCommand::class => [new FooCommandHandler()],
+        ]);
+
+        $eventBus = new EventBus($eventMessageBus);
+        $commandBus = new CommandBus($commandMessageBus, $eventBus);
+
+        // Act
+        $commandBus->dispatch(new FooCommand('bar'));
     }
 }

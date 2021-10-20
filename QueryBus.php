@@ -11,8 +11,10 @@
 namespace SoureCode\Component\Cqrs;
 
 use Symfony\Component\Messenger\Envelope;
+use Symfony\Component\Messenger\Exception\HandlerFailedException;
 use Symfony\Component\Messenger\HandleTrait;
 use Symfony\Component\Messenger\MessageBusInterface;
+use Throwable;
 
 /**
  * @author Jason Schilling <jason@sourecode.dev>
@@ -20,7 +22,7 @@ use Symfony\Component\Messenger\MessageBusInterface;
 class QueryBus implements QueryBusInterface
 {
     use HandleTrait {
-        handle as handleQuery;
+         handle as private handleQuery;
     }
 
     public function __construct(MessageBusInterface $queryBus)
@@ -28,8 +30,24 @@ class QueryBus implements QueryBusInterface
         $this->messageBus = $queryBus;
     }
 
-    public function handle(QueryInterface|Envelope $query): mixed
+    /**
+     * {@inheritDoc}
+     */
+    public function handle(QueryInterface $query, array $stamps = []): mixed
     {
-        return $this->handleQuery($query);
+        try {
+            $envelope = Envelope::wrap($query, $stamps);
+
+            return $this->handleQuery($envelope);
+        } catch (HandlerFailedException $exception) {
+            while ($exception instanceof HandlerFailedException) {
+                /**
+                 * @var Throwable $exception
+                 */
+                $exception = $exception->getPrevious();
+            }
+
+            throw $exception;
+        }
     }
 }

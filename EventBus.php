@@ -25,8 +25,13 @@ class EventBus implements EventBusInterface
         $this->messageBus = $messageBus;
     }
 
-    public function dispatch(EventInterface|Envelope $event): void
+    /**
+     * {@inheritDoc}
+     */
+    public function dispatch(EventInterface $event, array $stamps = []): void
     {
-        $this->messageBus->dispatch($event);
+        $envelope = Envelope::wrap($event, $stamps);
+
+        $this->messageBus->dispatch($envelope);
     }
 }
