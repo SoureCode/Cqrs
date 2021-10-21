@@ -2,10 +2,7 @@
     "name": "sourecode/cqrs",
     "type": "library",
     "description": "Cqrs interfaces and classes",
-    "keywords": [
-        "cqrs",
-        "messenger"
-    ],
+    "keywords": ["cqrs", "messenger"],
     "license": "MIT",
     "authors": [
         {
@@ -26,6 +23,11 @@
         "exclude-from-classmap": [
             "/Tests/"
         ]
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.1-dev"
+        }
     },
     "minimum-stability": "dev"
 }
